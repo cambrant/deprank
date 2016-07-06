@@ -78,50 +78,51 @@ def get_package_info(files):
     return packages
 
 
-if getuser() != 'root':
-    print 'Error: Not running as super user.'
-    sys.exit(1)
+if __name__ == '__main__':
+    if getuser() != 'root':
+        print 'Error: Not running as super user.'
+        sys.exit(1)
 
-directories = ['/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/', '/usr/local/bin/',
-    '/usr/local/sbin/']
-directories = ['/usr/local/bin/']
+    directories = ['/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/', '/usr/local/bin/',
+        '/usr/local/sbin/']
+    directories = ['/usr/local/bin/']
 
-# Find all executables files in the specified directories.
-files = set()
-for directory in directories:
-    command = ["find", directory, "-type", "f", "-perm", "/a+x", "-exec",
-        "ldd", "{}", ";"]
+    # Find all executables files in the specified directories.
+    files = set()
+    for directory in directories:
+        command = ["find", directory, "-type", "f", "-perm", "/a+x", "-exec",
+            "ldd", "{}", ";"]
 
-    p = subprocess.Popen(command, stdout=subprocess.PIPE)
-    output = p.communicate()[0]
+        p = subprocess.Popen(command, stdout=subprocess.PIPE)
+        output = p.communicate()[0]
 
-    for line in output.split('\n'):
-        if 'so' not in line:
-            continue
+        for line in output.split('\n'):
+            if 'so' not in line:
+                continue
 
-        # Remove leading file path.
-        filename = line.split()[0]
-        if '/' in filename:
-            filename = filename.split('/')[-1]
+            # Remove leading file path.
+            filename = line.split()[0]
+            if '/' in filename:
+                filename = filename.split('/')[-1]
 
-        files.add(filename)
+            files.add(filename)
 
-# Decide which package manager is available.
-packages = []
-if cmd_exists('dnf'):
-    dnf = True
-elif cmd_exists('yum'):
-    yum = True
-else:
-    print 'Error: no package manager found!'
-    sys.exit(1)
+    # Decide which package manager is available.
+    packages = []
+    if cmd_exists('dnf'):
+        dnf = True
+    elif cmd_exists('yum'):
+        yum = True
+    else:
+        print 'Error: no package manager found!'
+        sys.exit(1)
 
-packages = get_package_info(files)
+    packages = get_package_info(files)
 
-# Format and output package statistics.
-stats = []
-for f, c in Counter(packages).items():
-    stats.append("%d\t%s" % (c, f))
+    # Format and output package statistics.
+    stats = []
+    for f, c in Counter(packages).items():
+        stats.append("%d\t%s" % (c, f))
 
-for p in natsorted(stats):
-    print p
+    for p in natsorted(stats):
+        print p
