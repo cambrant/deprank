@@ -66,7 +66,7 @@ elif cmd_exists('yum'):
     yum = True
 else:
     print 'Error: no package manager found!'
-    quit()
+    sys.exit(1)
 
 # Get package information.
 for f in files:
@@ -79,7 +79,7 @@ for f in files:
                 package_name], stderr=subprocess.STDOUT)
         except KeyboardInterrupt:
             print 'Aborted.'
-            quit()
+            sys.exit(1)
         except:
             # Could not get package name - discard the file and remove it from the
             # total count.
@@ -94,7 +94,7 @@ for f in files:
                 package_name], stderr=subprocess.STDOUT)
         except KeyboardInterrupt:
             print 'Aborted.'
-            quit()
+            sys.exit(1)
         except:
             # Could not get package name - discard the file and remove it from the
             # total count.
