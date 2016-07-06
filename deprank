@@ -19,24 +19,28 @@ def output_percent_done(current, total):
             printed_percentage.append(rounded_percentage)
             print "%d%% done" % rounded_percentage
 
-command = ["find", "/bin/", "-type", "f", "-perm", "/a+x", "-exec", "ldd",
-    "{}", ";"]
-
-p = subprocess.Popen(command, stdout=subprocess.PIPE)
-output = p.communicate()[0]
+directories = ['/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/', '/usr/local/bin/',
+    '/usr/local/sbin/']
 
 # Find all executables files in the specified directories.
 files = set()
+for directory in directories:
+    command = ["find", directory, "-type", "f", "-perm", "/a+x", "-exec",
+        "ldd", "{}", ";"]
 
-for line in output.split('\n'):
-    if 'so' not in line:
-        continue
+    p = subprocess.Popen(command, stdout=subprocess.PIPE)
+    output = p.communicate()[0]
 
-    filename = line.split()[0]
-    if '/' in filename:
-        filename = filename.split('/')[-1]
+    for line in output.split('\n'):
+        if 'so' not in line:
+            continue
 
-    files.add(filename)
+        # Remove leading file path.
+        filename = line.split()[0]
+        if '/' in filename:
+            filename = filename.split('/')[-1]
+
+        files.add(filename)
 
 file_count = len(files)
 files_done = 0
