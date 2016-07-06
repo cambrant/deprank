@@ -51,6 +51,9 @@ def get_package_info(files):
                 package_name = output.split('\n')[0].split()[0]
                 package_info = subprocess.check_output(['yum', '-q', 'info',
                     'installed', package_name], stderr=subprocess.STDOUT)
+        except IndexError:
+            file_count -= 1
+            continue
         except subprocess.CalledProcessError:
             # Could not get package name - discard the file and remove it from the
             # total count.
