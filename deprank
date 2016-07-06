@@ -25,6 +25,7 @@ command = ["find", "/bin/", "-type", "f", "-perm", "/a+x", "-exec", "ldd",
 p = subprocess.Popen(command, stdout=subprocess.PIPE)
 output = p.communicate()[0]
 
+# Find all executables files in the specified directories.
 files = set()
 
 for line in output.split('\n'):
@@ -40,6 +41,7 @@ for line in output.split('\n'):
 file_count = len(files)
 files_done = 0
 
+# Get package information.
 packages = []
 for f in files:
     try:
@@ -62,6 +64,7 @@ for f in files:
 
     output_percent_done(files_done, file_count)
 
+# Format and output package statistics.
 stats = []
 for f, c in Counter(packages).items():
     stats.append("%d\t%s" % (c, f))
