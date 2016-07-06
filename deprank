@@ -44,13 +44,13 @@ def get_package_info(files):
                     stderr=subprocess.STDOUT)
                 package_name = output.split('\n')[1].split()[0]
                 package_info = subprocess.check_output(['dnf', 'info',
-                    package_name], stderr=subprocess.STDOUT)
+                    'installed', package_name], stderr=subprocess.STDOUT)
             elif yum:
                 output = subprocess.check_output(['yum', '-q', 'provides',
                     file_name], stderr=subprocess.STDOUT)
                 package_name = output.split('\n')[0].split()[0]
                 package_info = subprocess.check_output(['yum', '-q', 'info',
-                    package_name], stderr=subprocess.STDOUT)
+                    'installed', package_name], stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError:
             # Could not get package name - discard the file and remove it from the
             # total count.
