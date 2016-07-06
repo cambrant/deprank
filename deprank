@@ -10,7 +10,7 @@ command = ["find", "/bin/", "-type", "f", "-perm", "/a+x", "-exec", "ldd",
 p = subprocess.Popen(command, stdout=subprocess.PIPE)
 output = p.communicate()[0]
 
-files = []
+files = set()
 
 for line in output.split('\n'):
     if 'so' not in line:
@@ -20,10 +20,26 @@ for line in output.split('\n'):
     if '/' in filename:
         filename = filename.split('/')[-1]
 
-    files.append(filename)
+    files.add(filename)
+
+packages = []
+for f in files:
+    try:
+        output = subprocess.check_output(['dnf', 'provides', f],
+                stderr=subprocess.STDOUT)
+        package_name = output.split('\n')[1].split()[0]
+        package_info = subprocess.check_output(['dnf', 'info', package_name])
+        for line in package_info.split('\n'):
+            if 'Name' in line:
+                package_name = line.split()[-1]
+                break
+    except:
+        continue
+
+    packages.append(package_name)
 
 stats = []
-for f, c in Counter(files).items():
+for f, c in Counter(packages).items():
     stats.append("%d\t%s" % (c, f))
 
 for l in natsorted(stats):
