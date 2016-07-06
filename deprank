@@ -63,23 +63,41 @@ else:
 
 # Get package information.
 for f in files:
-    try:
-        output = subprocess.check_output(['dnf', 'provides', f],
+    if dnf:
+        try:
+            output = subprocess.check_output(['dnf', 'provides', f],
                 stderr=subprocess.STDOUT)
-        package_name = output.split('\n')[1].split()[0]
-        package_info = subprocess.check_output(['dnf', 'info', package_name])
-        for line in package_info.split('\n'):
-            if 'Name' in line:
-                package_name = line.split()[-1]
-                break
-    except KeyboardInterrupt:
-        print 'Aborted.'
-        quit()
-    except:
-        # Could not get package name - discard the file and remove it from the
-        # total count.
-        file_count -= 1
-        continue
+            package_name = output.split('\n')[1].split()[0]
+            package_info = subprocess.check_output(['dnf', 'info',
+                package_name], stderr=subprocess.STDOUT)
+        except KeyboardInterrupt:
+            print 'Aborted.'
+            quit()
+        except:
+            # Could not get package name - discard the file and remove it from the
+            # total count.
+            file_count -= 1
+            continue
+    elif yum:
+        try:
+            output = subprocess.check_output(['yum', '-q', 'provides', f],
+                stderr=subprocess.STDOUT)
+            package_name = output.split('\n')[0].split()[0]
+            package_info = subprocess.check_output(['yum', '-q', 'info',
+                package_name], stderr=subprocess.STDOUT)
+        except KeyboardInterrupt:
+            print 'Aborted.'
+            quit()
+        except:
+            # Could not get package name - discard the file and remove it from the
+            # total count.
+            file_count -= 1
+            continue
+
+    for line in package_info.split('\n'):
+        if 'Name' in line:
+            package_name = line.split()[-1]
+            break
 
     packages.append(package_name)
     files_done += 1
