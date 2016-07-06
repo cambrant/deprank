@@ -19,6 +19,10 @@ def output_percent_done(current, total):
             printed_percentage.append(rounded_percentage)
             print "%d%% done" % rounded_percentage
 
+def cmd_exists(cmd):
+    return subprocess.call("type " + cmd, shell=True,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
+
 directories = ['/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/', '/usr/local/bin/',
     '/usr/local/sbin/']
 
@@ -45,8 +49,19 @@ for directory in directories:
 file_count = len(files)
 files_done = 0
 
-# Get package information.
+# Decide which package manager is available.
 packages = []
+if cmd_exists('dnf'):
+    dnf = True
+    yum = False
+elif cmd_exists('yum'):
+    dnf = False
+    yum = True
+else:
+    print 'Error: no package manager found!'
+    quit()
+
+# Get package information.
 for f in files:
     try:
         output = subprocess.check_output(['dnf', 'provides', f],
