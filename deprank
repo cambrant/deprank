@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+
+import subprocess
+from collections import Counter
+from natsort import natsorted
+
+command = ["find", "/bin/", "-type", "f", "-perm", "/a+x", "-exec", "ldd",
+    "{}", ";"]
+
+p = subprocess.Popen(command, stdout=subprocess.PIPE)
+output = p.communicate()[0]
+
+files = []
+
+for line in output.split('\n'):
+    if 'so' not in line:
+        continue
+
+    filename = line.split()[0]
+    if '/' in filename:
+        filename = filename.split('/')[-1]
+
+    files.append(filename)
+
+stats = []
+for f, c in Counter(files).items():
+    stats.append("%d\t%s" % (c, f))
+
+for l in natsorted(stats):
+    print l
