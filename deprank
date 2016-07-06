@@ -4,6 +4,21 @@ import subprocess
 from collections import Counter
 from natsort import natsorted
 
+printed_percentage = []
+
+def output_percent_done(current, total):
+    # Round the percentage of completed items down to the nearest 5 percent and
+    # output that percentage if the percentage is divisible by 10 and if the
+    # percentage has not been printed before.
+    percent_done = int(float(current) / total * 100)
+
+    if (percent_done - (percent_done % 5)) % 10 == 0:
+        rounded_percentage = percent_done - (percent_done % 5)
+
+        if rounded_percentage not in printed_percentage:
+            printed_percentage.append(rounded_percentage)
+            print "%d%% done" % rounded_percentage
+
 command = ["find", "/bin/", "-type", "f", "-perm", "/a+x", "-exec", "ldd",
     "{}", ";"]
 
@@ -22,6 +37,9 @@ for line in output.split('\n'):
 
     files.add(filename)
 
+file_count = len(files)
+files_done = 0
+
 packages = []
 for f in files:
     try:
@@ -34,9 +52,15 @@ for f in files:
                 package_name = line.split()[-1]
                 break
     except:
+        # Could not get package name - discard the file and remove it from the
+        # total count.
+        file_count -= 1
         continue
 
     packages.append(package_name)
+    files_done += 1
+
+    output_percent_done(files_done, file_count)
 
 stats = []
 for f, c in Counter(packages).items():
