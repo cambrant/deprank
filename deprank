@@ -38,30 +38,24 @@ def get_package_info(files):
     file_count = len(files)
     files_done = 0
     for file_name in files:
-        if dnf:
-            try:
+        try:
+            if dnf:
                 output = subprocess.check_output(['dnf', 'provides', file_name],
                     stderr=subprocess.STDOUT)
                 package_name = output.split('\n')[1].split()[0]
                 package_info = subprocess.check_output(['dnf', 'info',
                     package_name], stderr=subprocess.STDOUT)
-            except subprocess.CalledProcessError:
-                # Could not get package name - discard the file and remove it from the
-                # total count.
-                file_count -= 1
-                continue
-        elif yum:
-            try:
+            elif yum:
                 output = subprocess.check_output(['yum', '-q', 'provides',
                     file_name], stderr=subprocess.STDOUT)
                 package_name = output.split('\n')[0].split()[0]
                 package_info = subprocess.check_output(['yum', '-q', 'info',
                     package_name], stderr=subprocess.STDOUT)
-            except subprocess.CalledProcessError:
-                # Could not get package name - discard the file and remove it from the
-                # total count.
-                file_count -= 1
-                continue
+        except subprocess.CalledProcessError:
+            # Could not get package name - discard the file and remove it from the
+            # total count.
+            file_count -= 1
+            continue
 
         for line in package_info.split('\n'):
             if 'Name' in line:
