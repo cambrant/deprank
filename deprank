@@ -57,6 +57,9 @@ for f in files:
             if 'Name' in line:
                 package_name = line.split()[-1]
                 break
+    except KeyboardInterrupt:
+        print 'Aborted.'
+        quit()
     except:
         # Could not get package name - discard the file and remove it from the
         # total count.
