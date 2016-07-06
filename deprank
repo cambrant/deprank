@@ -113,13 +113,15 @@ if __name__ == '__main__':
 
     directories = ['/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/', '/usr/local/bin/',
         '/usr/local/sbin/']
-    directories = ['/usr/local/bin/']
 
     if not find_package_manager():
+        # No suitable package manager found. Exit.
         sys.exit(1)
 
     files = get_executable_file_list(directories)
 
+    # This is a potentially long running function call and we want the user to
+    # be able to abort properly.
     try:
         packages = get_package_info(files)
     except KeyboardInterrupt:
@@ -131,5 +133,5 @@ if __name__ == '__main__':
     for f, c in Counter(packages).items():
         stats.append("%d\t%s" % (c, f))
 
-    for p in natsorted(stats):
-        print p
+    for package in natsorted(stats):
+        print package
