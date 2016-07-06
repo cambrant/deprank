@@ -42,5 +42,5 @@ stats = []
 for f, c in Counter(packages).items():
     stats.append("%d\t%s" % (c, f))
 
-for l in natsorted(stats):
-    print l
+for p in natsorted(stats):
+    print p
