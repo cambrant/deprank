@@ -45,7 +45,7 @@ class Deprank:
                     output = subprocess.check_output(['dnf', '-C', 'provides',
                         file_name], stderr=subprocess.STDOUT)
 
-                    # Extract the package name
+                    # Extract the full package name
                     package_name = output.split('\n')[1].split()[0]
 
                     # Remove the trailing architecture (".i686", etc)
@@ -58,7 +58,7 @@ class Deprank:
                     output = subprocess.check_output(['yum', '-q', '-C', 'provides',
                         file_name], stderr=subprocess.STDOUT)
 
-                    # Extract the package name
+                    # Extract the full package name
                     package_name = output.split('\n')[0].split()[0]
 
                     # Remove the trailing architecture (".i686", etc)
@@ -77,10 +77,8 @@ class Deprank:
                 file_count -= 1
                 continue
 
-            for line in package_info.split('\n'):
-                if 'Name' in line:
-                    package_name = line.split()[-1]
-                    break
+            # Extract the base package name
+            package_name = package_info.split('\n')[1].split()[-1]
 
             packages.append(package_name)
             files_done += 1
