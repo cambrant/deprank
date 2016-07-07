@@ -42,31 +42,23 @@ class Deprank:
         for file_name in files:
             try:
                 if self.dnf:
-                    output = subprocess.check_output(['dnf', '-C', 'provides',
-                        file_name], stderr=subprocess.STDOUT)
-
-                    # Extract the full package name
-                    package_name = output.split('\n')[1].split()[0]
-
-                    # Remove the trailing architecture (".i686", etc)
-                    package_name = '.'.join(package_name.split('.')[0:-1])
-
-                    # Get the package info to extract the base package name.
-                    package_info = subprocess.check_output(['dnf', '-C', 'info',
-                        package_name], stderr=subprocess.STDOUT)
+                    package_manager = 'dnf'
                 elif self.yum:
-                    output = subprocess.check_output(['yum', '-q', '-C',
-                        'provides', file_name], stderr=subprocess.STDOUT)
+                    package_manager = 'yum'
 
-                    # Extract the full package name
-                    package_name = output.split('\n')[0].split()[0]
+                output = subprocess.check_output([package_manager, '-q', '-C',
+                    'provides', file_name], stderr=subprocess.STDOUT)
 
-                    # Remove the trailing architecture (".i686", etc)
-                    package_name = '.'.join(package_name.split('.')[0:-1])
+                # Extract the full package name
+                package_name = output.split('\n')[0].split()[0]
 
-                    # Get the package info to extract the base package name.
-                    package_info = subprocess.check_output(['yum', '-q', '-C',
-                        'info', package_name], stderr=subprocess.STDOUT)
+                # Remove the trailing architecture (".i686", etc) and
+                # return the package_name.
+                package_name = '.'.join(package_name.split('.')[0:-1])
+
+                # Get the package info to extract the base package name.
+                package_info = subprocess.check_output([package_manager, '-q',
+                    '-C', 'info', package_name], stderr=subprocess.STDOUT)
             except IndexError:
                 file_count -= 1
                 continue
