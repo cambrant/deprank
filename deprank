@@ -141,8 +141,8 @@ if __name__ == '__main__':
 
     # Format and output package statistics.
     stats = []
-    for f, c in Counter(packages).items():
-        stats.append("%d\t%s" % (c, f))
+    for result in deprank.results:
+        stats.append("%d\t%s" % (deprank.results[result], result))
 
     for package in natsorted(stats):
         print package
