@@ -11,6 +11,7 @@ class Deprank:
         self.printed_percentage = []
         self.dnf = False
         self.yum = False
+        self.results = {}
 
     def output_percent_done(self, current, total):
         # Round the percentage of completed items down to the nearest 5 percent
@@ -72,6 +73,11 @@ class Deprank:
             package_name = package_info.split('\n')[1].split()[-1]
 
             packages.append(package_name)
+            if self.results.has_key(package_name):
+                self.results[package_name] += 1
+            else:
+                self.results[package_name] = 1
+
             files_done += 1
 
             self.output_percent_done(files_done, file_count)
