@@ -92,15 +92,13 @@ class Deprank:
             output = p.communicate()[0]
 
             for line in output.split('\n'):
-                if 'so' not in line:
-                    continue
+                if 'so' in line:
+                    # Remove leading file path.
+                    filename = line.split()[0]
+                    if '/' in filename:
+                        filename = filename.split('/')[-1]
 
-                # Remove leading file path.
-                filename = line.split()[0]
-                if '/' in filename:
-                    filename = filename.split('/')[-1]
-
-                library_files.add(filename)
+                    library_files.add(filename)
 
         return library_files
 
