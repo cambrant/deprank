@@ -10,6 +10,7 @@ class Deprank:
     def __init__(self):
         self.printed_percentage = []
         self.results = {}
+        self.package_manager = None
 
     def output_percent_done(self, current, total):
         # Round the percentage of completed items down to the nearest 5 percent
