@@ -35,7 +35,6 @@ class Deprank:
 
         package_name = ''
         package_info = ''
-        packages = []
 
         file_count = len(files)
         files_done = 0
@@ -66,7 +65,6 @@ class Deprank:
             # Extract the base package name
             package_name = package_info.split('\n')[1].split()[-1]
 
-            packages.append(package_name)
             if self.results.has_key(package_name):
                 self.results[package_name] += 1
             else:
@@ -76,8 +74,6 @@ class Deprank:
 
             if progress_callback:
                 progress_callback(files_done, file_count)
-
-        return packages
 
     def get_library_file_list(self, directories):
         # Find all library files used by the executables in the passed list of
@@ -134,7 +130,7 @@ if __name__ == '__main__':
     # This is a potentially long running function call and we want the user to
     # be able to abort properly.
     try:
-        packages = deprank.get_package_info(files, deprank.output_percent_done)
+        deprank.get_package_info(files, deprank.output_percent_done)
     except KeyboardInterrupt:
         print 'Aborted.'
         sys.exit(1)
