@@ -35,9 +35,15 @@ class Deprank:
         package_name = ''
         package_info = ''
 
+        # Keep files as a total list of files, and create a set of unique files
+        # to iterate through, finding the package name for each of them.
+        unique_files = set(files)
+
         file_count = len(files)
         files_done = 0
-        for file_name in files:
+        for file_name in unique_files:
+            occurance_count = files.count(file_name)
+
             try:
                 output = subprocess.check_output([self.package_manager, '-q',
                     '-C', 'provides', file_name], stderr=subprocess.STDOUT)
@@ -53,23 +59,26 @@ class Deprank:
                 package_info = subprocess.check_output([self.package_manager,
                     '-q', '-C', 'info', package_name], stderr=subprocess.STDOUT)
             except IndexError:
-                file_count -= 1
+                file_count -= occurance_count
                 continue
             except subprocess.CalledProcessError:
                 # Could not get package name - discard the file and remove it
                 # from the total count.
-                file_count -= 1
+                file_count -= occurance_count
                 continue
 
             # Extract the base package name
             package_name = package_info.split('\n')[1].split()[-1]
 
+            # Add the number of occurances of each file to the tally, to get the
+            # true number of executables on the system which depend on the
+            # package.
             if self.results.has_key(package_name):
-                self.results[package_name] += 1
+                self.results[package_name] += occurance_count
             else:
-                self.results[package_name] = 1
+                self.results[package_name] = occurance_count
 
-            files_done += 1
+            files_done += occurance_count
 
             if progress_callback:
                 progress_callback(files_done, file_count)
@@ -78,7 +87,7 @@ class Deprank:
         # Find all library files used by the executables in the passed list of
         # directories.
 
-        library_files = set()
+        library_files = []
         for directory in directories:
             command = ["find", directory, "-type", "f", "-perm", "/a+x",
                 "-exec", "ldd", "{}", ";"]
@@ -94,7 +103,7 @@ class Deprank:
                     if '/' in filename:
                         filename = filename.split('/')[-1]
 
-                    library_files.add(filename)
+                    library_files.append(filename)
 
         return library_files
 
