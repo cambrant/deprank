@@ -66,8 +66,7 @@ class Deprank:
 
                     # Get the package info to extract the base package name.
                     package_info = subprocess.check_output(['yum', '-q', '-C',
-                        'info', package_name],
-                        stderr=subprocess.STDOUT)
+                        'info', package_name], stderr=subprocess.STDOUT)
             except IndexError:
                 file_count -= 1
                 continue
@@ -87,9 +86,11 @@ class Deprank:
 
         return packages
 
-    def get_executable_file_list(self, directories):
-        # Find all executables files in the specified directories.
-        files = set()
+    def get_library_file_list(self, directories):
+        # Find all library files used by the executables in the passed list of
+        # directories.
+
+        library_files = set()
         for directory in directories:
             command = ["find", directory, "-type", "f", "-perm", "/a+x", "-exec",
                 "ldd", "{}", ";"]
@@ -107,9 +108,9 @@ class Deprank:
                 if '/' in filename:
                     filename = filename.split('/')[-1]
 
-                files.add(filename)
+                library_files.add(filename)
 
-        return files
+        return library_files
 
     def find_package_manager(self):
         # Decide which package manager is available.
@@ -137,7 +138,7 @@ if __name__ == '__main__':
         # No suitable package manager found. Exit.
         sys.exit(1)
 
-    files = deprank.get_executable_file_list(directories)
+    files = deprank.get_library_file_list(directories)
 
     # This is a potentially long running function call and we want the user to
     # be able to abort properly.
