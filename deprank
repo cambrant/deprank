@@ -13,9 +13,9 @@ class Deprank:
         self.yum = False
 
     def output_percent_done(self, current, total):
-        # Round the percentage of completed items down to the nearest 5 percent and
-        # output that percentage if the percentage is divisible by 10 and if the
-        # percentage has not been printed before.
+        # Round the percentage of completed items down to the nearest 5 percent
+        # and output that percentage if the percentage is divisible by 10 and if
+        # the percentage has not been printed before.
         percent_done = int(float(current) / total * 100)
 
         if (percent_done - (percent_done % 5)) % 10 == 0:
@@ -55,8 +55,8 @@ class Deprank:
                     package_info = subprocess.check_output(['dnf', '-C', 'info',
                         package_name], stderr=subprocess.STDOUT)
                 elif self.yum:
-                    output = subprocess.check_output(['yum', '-q', '-C', 'provides',
-                        file_name], stderr=subprocess.STDOUT)
+                    output = subprocess.check_output(['yum', '-q', '-C',
+                        'provides', file_name], stderr=subprocess.STDOUT)
 
                     # Extract the full package name
                     package_name = output.split('\n')[0].split()[0]
@@ -71,8 +71,8 @@ class Deprank:
                 file_count -= 1
                 continue
             except subprocess.CalledProcessError:
-                # Could not get package name - discard the file and remove it from the
-                # total count.
+                # Could not get package name - discard the file and remove it
+                # from the total count.
                 file_count -= 1
                 continue
 
@@ -92,8 +92,8 @@ class Deprank:
 
         library_files = set()
         for directory in directories:
-            command = ["find", directory, "-type", "f", "-perm", "/a+x", "-exec",
-                "ldd", "{}", ";"]
+            command = ["find", directory, "-type", "f", "-perm", "/a+x",
+                "-exec", "ldd", "{}", ";"]
 
             p = subprocess.Popen(command, stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
@@ -131,8 +131,8 @@ if __name__ == '__main__':
         print 'Error: Not running as super user.'
         sys.exit(1)
 
-    directories = ['/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/', '/usr/local/bin/',
-        '/usr/local/sbin/']
+    directories = ['/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/',
+        '/usr/local/bin/', '/usr/local/sbin/']
 
     if not deprank.find_package_manager():
         # No suitable package manager found. Exit.
