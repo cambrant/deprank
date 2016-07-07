@@ -9,8 +9,6 @@ from getpass import getuser
 class Deprank:
     def __init__(self):
         self.printed_percentage = []
-        self.dnf = False
-        self.yum = False
         self.results = {}
 
     def output_percent_done(self, current, total):
@@ -42,13 +40,8 @@ class Deprank:
         files_done = 0
         for file_name in files:
             try:
-                if self.dnf:
-                    package_manager = 'dnf'
-                elif self.yum:
-                    package_manager = 'yum'
-
-                output = subprocess.check_output([package_manager, '-q', '-C',
-                    'provides', file_name], stderr=subprocess.STDOUT)
+                output = subprocess.check_output([self.package_manager, '-q',
+                    '-C', 'provides', file_name], stderr=subprocess.STDOUT)
 
                 # Extract the full package name
                 package_name = output.split('\n')[0].split()[0]
@@ -58,8 +51,8 @@ class Deprank:
                 package_name = '.'.join(package_name.split('.')[0:-1])
 
                 # Get the package info to extract the base package name.
-                package_info = subprocess.check_output([package_manager, '-q',
-                    '-C', 'info', package_name], stderr=subprocess.STDOUT)
+                package_info = subprocess.check_output([self.package_manager,
+                    '-q', '-C', 'info', package_name], stderr=subprocess.STDOUT)
             except IndexError:
                 file_count -= 1
                 continue
@@ -113,9 +106,9 @@ class Deprank:
     def find_package_manager(self):
         # Decide which package manager is available.
         if self.cmd_exists('dnf'):
-            self.dnf = True
+            self.package_manager = 'dnf'
         elif self.cmd_exists('yum'):
-            self.yum = True
+            self.package_manager = 'yum'
         else:
             print 'Error: no package manager found!'
             return False
