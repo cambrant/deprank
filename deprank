@@ -133,7 +133,6 @@ if __name__ == '__main__':
 
     directories = ['/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/', '/usr/local/bin/',
         '/usr/local/sbin/']
-    directories = ['/usr/local/bin/']
 
     if not deprank.find_package_manager():
         # No suitable package manager found. Exit.
